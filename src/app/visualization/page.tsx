@@ -1,8 +1,8 @@
 'use client';
 
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner, TransactionItem } from '@/components';
-import { SectionType, SECTION_LABELS, SECTION_ICONS } from '@/types';
+import { LoadingSpinner, TransactionItem, WalletIcon, BarChartIcon, BankIcon, HistoryIcon, SectionIcon } from '@/components';
+import { SectionType, SECTION_LABELS } from '@/types';
 import {
   PieChart,
   Pie,
@@ -40,7 +40,7 @@ export default function VisualizationPage() {
     .map((section, index) => ({
       name: SECTION_LABELS[section],
       value: getSectionTotal(section),
-      icon: SECTION_ICONS[section],
+      section: section,
       color: COLORS[index],
     }))
     .filter((item) => item.value > 0);
@@ -94,8 +94,8 @@ export default function VisualizationPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Savings Distribution Pie Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            💰 Savings Distribution
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <WalletIcon size={22} className="text-blue-500" /> Savings Distribution
           </h2>
           {pieData.length === 0 ? (
             <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -139,8 +139,8 @@ export default function VisualizationPage() {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: item.color }}
                 ></div>
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {item.icon} {item.name}
+                <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                  <SectionIcon section={item.section} size={14} /> {item.name}
                 </span>
               </div>
             ))}
@@ -149,8 +149,8 @@ export default function VisualizationPage() {
 
         {/* Earned vs Spent Bar Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            📊 Earned vs Spent
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <BarChartIcon size={22} className="text-purple-500" /> Earned vs Spent
           </h2>
           {totalEarned === 0 && totalSpent === 0 ? (
             <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -195,8 +195,8 @@ export default function VisualizationPage() {
 
         {/* Available vs Lend */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            🏦 Available vs Loans
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <BankIcon size={22} className="text-green-500" /> Available vs Loans
           </h2>
           {availableMoney === 0 && lendAmount === 0 ? (
             <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -235,8 +235,8 @@ export default function VisualizationPage() {
 
         {/* Recent Transactions */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            📋 Recent Transactions
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <HistoryIcon size={22} className="text-gray-500" /> Recent Transactions
           </h2>
           {recentTransactions.length === 0 ? (
             <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">

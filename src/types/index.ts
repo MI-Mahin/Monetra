@@ -40,10 +40,3 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   mobile: 'Mobile Banking',
   lend: 'Lend',
 };
-
-export const SECTION_ICONS: Record<SectionType, string> = {
-  cash: '💵',
-  bank: '🏦',
-  mobile: '📱',
-  lend: '🤝',
-};

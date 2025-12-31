@@ -3,8 +3,8 @@
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner, Modal } from '@/components';
-import { SectionType, SECTION_LABELS, SECTION_ICONS, SubEntry } from '@/types';
+import { LoadingSpinner, Modal, SectionIcon, EditIcon, TrashIcon, ArrowLeftIcon, PlusIcon } from '@/components';
+import { SectionType, SECTION_LABELS, SubEntry } from '@/types';
 
 interface PageProps {
   params: Promise<{ type: string }>;
@@ -92,15 +92,15 @@ export default function SectionPage({ params }: PageProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center gap-1"
         >
-          ← Back
+          <ArrowLeftIcon size={18} /> Back
         </button>
       </div>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-4xl">{SECTION_ICONS[section]}</span>
+          <SectionIcon section={section} size={40} />
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {SECTION_LABELS[section]}
@@ -116,9 +116,9 @@ export default function SectionPage({ params }: PageProps) {
             setAmount('');
             setIsAddModalOpen(true);
           }}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
         >
-          + Add Entry
+          <PlusIcon size={18} /> Add Entry
         </button>
       </div>
 
@@ -150,14 +150,14 @@ export default function SectionPage({ params }: PageProps) {
                   className="text-gray-400 hover:text-blue-600 transition-colors p-2"
                   title="Edit"
                 >
-                  ✏️
+                  <EditIcon size={18} />
                 </button>
                 <button
                   onClick={() => openDeleteModal(entry)}
                   className="text-gray-400 hover:text-red-600 transition-colors p-2"
                   title="Delete"
                 >
-                  🗑️
+                  <TrashIcon size={18} />
                 </button>
               </div>
             </div>

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner } from '@/components';
-import { SectionType, SECTION_LABELS, SECTION_ICONS } from '@/types';
+import { LoadingSpinner, SectionIcon, PlusIcon, MinusIcon } from '@/components';
+import { SectionType, SECTION_LABELS } from '@/types';
 
 type ActionType = 'add' | 'spend';
 
@@ -103,13 +103,13 @@ export default function AddSpendPage() {
             setError('');
             setSuccess('');
           }}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
             actionType === 'add'
               ? 'bg-green-600 text-white'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
           }`}
         >
-          💰 Add Money
+          <PlusIcon size={18} /> Add Money
         </button>
         <button
           onClick={() => {
@@ -117,13 +117,13 @@ export default function AddSpendPage() {
             setError('');
             setSuccess('');
           }}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
             actionType === 'spend'
               ? 'bg-red-600 text-white'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
           }`}
         >
-          💸 Spend Money
+          <MinusIcon size={18} /> Spend Money
         </button>
       </div>
 
@@ -143,13 +143,13 @@ export default function AddSpendPage() {
                   setSection(s);
                   setSubEntryId('');
                 }}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                   section === s
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
                 }`}
               >
-                <span className="text-2xl block mb-1">{SECTION_ICONS[s]}</span>
+                <SectionIcon section={s} size={28} className="mb-1" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {SECTION_LABELS[s]}
                 </span>

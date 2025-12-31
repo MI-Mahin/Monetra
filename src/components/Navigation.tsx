@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { HomeIcon, WalletIcon, TransferIcon, HistoryIcon, ReportIcon, ChartIcon } from './Icons';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: '🏠' },
-  { href: '/add-spend', label: 'Add/Spend', icon: '💰' },
-  { href: '/transfer', label: 'Transfer', icon: '🔄' },
-  { href: '/history', label: 'History', icon: '📋' },
-  { href: '/report', label: 'Report', icon: '📊' },
-  { href: '/visualization', label: 'Charts', icon: '📈' },
+  { href: '/', label: 'Dashboard', Icon: HomeIcon },
+  { href: '/add-spend', label: 'Add/Spend', Icon: WalletIcon },
+  { href: '/transfer', label: 'Transfer', Icon: TransferIcon },
+  { href: '/history', label: 'History', Icon: HistoryIcon },
+  { href: '/report', label: 'Report', Icon: ReportIcon },
+  { href: '/visualization', label: 'Charts', Icon: ChartIcon },
 ];
 
 export default function Navigation() {
@@ -30,7 +31,7 @@ export default function Navigation() {
                   : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
-              <span className="text-lg md:text-xl">{item.icon}</span>
+              <item.Icon size={20} className={isActive ? 'text-blue-600 dark:text-blue-400' : ''} />
               <span className="hidden sm:inline">{item.label}</span>
             </Link>
           );

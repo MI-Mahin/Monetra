@@ -1,7 +1,8 @@
 'use client';
 
-import { Transaction, SECTION_LABELS } from '@/types';
+import { Transaction, SECTION_LABELS, SectionType } from '@/types';
 import { useApp } from '@/context/AppContext';
+import { ArrowUpIcon, ArrowDownIcon, TransferIcon, SectionIcon } from './Icons';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -32,21 +33,24 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
         return {
           bg: 'bg-green-50 dark:bg-green-900/20',
           text: 'text-green-600 dark:text-green-400',
-          icon: '↑',
+          iconBg: 'bg-green-100 dark:bg-green-900/40',
+          Icon: ArrowUpIcon,
           label: 'Added',
         };
       case 'spend':
         return {
           bg: 'bg-red-50 dark:bg-red-900/20',
           text: 'text-red-600 dark:text-red-400',
-          icon: '↓',
+          iconBg: 'bg-red-100 dark:bg-red-900/40',
+          Icon: ArrowDownIcon,
           label: 'Spent',
         };
       case 'transfer':
         return {
           bg: 'bg-blue-50 dark:bg-blue-900/20',
           text: 'text-blue-600 dark:text-blue-400',
-          icon: '↔',
+          iconBg: 'bg-blue-100 dark:bg-blue-900/40',
+          Icon: TransferIcon,
           label: 'Transfer',
         };
     }
@@ -58,26 +62,24 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
     <div className={`${styles.bg} rounded-lg p-4 border border-gray-100 dark:border-gray-700`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <span className={`${styles.text} text-xl font-bold`}>{styles.icon}</span>
+          <div className={`p-2 rounded-lg ${styles.iconBg}`}>
+            <styles.Icon size={18} className={styles.text} />
+          </div>
           <div>
             <p className="font-medium text-gray-900 dark:text-white">
               {transaction.purpose || 'No description'}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {transaction.type === 'transfer' ? (
+            <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <SectionIcon section={transaction.fromSection} size={14} className="opacity-70" />
+              <span>{getSubEntryName(transaction.fromSection, transaction.fromSubEntry)}</span>
+              {transaction.type === 'transfer' && transaction.toSubEntry && transaction.toSection && (
                 <>
-                  {getSubEntryName(transaction.fromSection, transaction.fromSubEntry)} ({SECTION_LABELS[transaction.fromSection]})
-                  {' → '}
-                  {transaction.toSubEntry && transaction.toSection && 
-                    `${getSubEntryName(transaction.toSection, transaction.toSubEntry)} (${SECTION_LABELS[transaction.toSection]})`
-                  }
-                </>
-              ) : (
-                <>
-                  {getSubEntryName(transaction.fromSection, transaction.fromSubEntry)} ({SECTION_LABELS[transaction.fromSection]})
+                  <span className="mx-1">→</span>
+                  <SectionIcon section={transaction.toSection as SectionType} size={14} className="opacity-70" />
+                  <span>{getSubEntryName(transaction.toSection, transaction.toSubEntry)}</span>
                 </>
               )}
-            </p>
+            </div>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               {formatDate(transaction.date)}
             </p>

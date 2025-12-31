@@ -1,8 +1,8 @@
 'use client';
 
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner } from '@/components';
-import { SectionType, SECTION_LABELS, SECTION_ICONS } from '@/types';
+import { LoadingSpinner, SectionIcon, TrendingUpIcon, TrendingDownIcon, LendIcon } from '@/components';
+import { SectionType, SECTION_LABELS } from '@/types';
 
 export default function ReportPage() {
   const {
@@ -75,8 +75,8 @@ export default function ReportPage() {
               {netChange >= 0 ? '+' : ''}৳{netChange.toLocaleString()}
             </p>
           </div>
-          <div className={`text-5xl ${netChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {netChange >= 0 ? '📈' : '📉'}
+          <div className={`${netChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {netChange >= 0 ? <TrendingUpIcon size={48} /> : <TrendingDownIcon size={48} />}
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ export default function ReportPage() {
                   <tr key={section} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{SECTION_ICONS[section]}</span>
+                        <SectionIcon section={section} size={24} />
                         <span className="font-medium text-gray-900 dark:text-white">
                           {SECTION_LABELS[section]}
                         </span>
@@ -164,7 +164,7 @@ export default function ReportPage() {
             return (
               <div key={section} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex items-center gap-2">
-                  <span className="text-xl">{SECTION_ICONS[section]}</span>
+                  <SectionIcon section={section} size={24} />
                   <span className="font-medium text-gray-900 dark:text-white">
                     {SECTION_LABELS[section]}
                   </span>
@@ -196,7 +196,9 @@ export default function ReportPage() {
       {lendAmount > 0 && (
         <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-6 border border-amber-200 dark:border-amber-900/30">
           <div className="flex items-start gap-4">
-            <span className="text-3xl">🤝</span>
+            <div className="text-amber-600 dark:text-amber-400">
+              <LendIcon size={36} />
+            </div>
             <div>
               <h3 className="font-semibold text-amber-800 dark:text-amber-300">
                 Money Lent Out

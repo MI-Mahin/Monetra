@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner } from '@/components';
-import { SectionType, SECTION_LABELS, SECTION_ICONS } from '@/types';
+import { LoadingSpinner, SectionIcon, ArrowDownIcon } from '@/components';
+import { SectionType, SECTION_LABELS } from '@/types';
 
 export default function TransferPage() {
   const router = useRouter();
@@ -118,13 +118,13 @@ export default function TransferPage() {
                   setFromSection(s);
                   setFromSubEntryId('');
                 }}
-                className={`p-2 rounded-lg border-2 transition-all text-center ${
+                className={`p-2 rounded-lg border-2 transition-all text-center flex flex-col items-center ${
                   fromSection === s
                     ? 'border-red-500 bg-white dark:bg-gray-700'
                     : 'border-gray-200 dark:border-gray-600 hover:border-red-300'
                 }`}
               >
-                <span className="text-lg block">{SECTION_ICONS[s]}</span>
+                <SectionIcon section={s} size={22} className="mb-0.5" />
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   {SECTION_LABELS[s]}
                 </span>
@@ -154,7 +154,7 @@ export default function TransferPage() {
         {/* Arrow */}
         <div className="flex justify-center">
           <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-3">
-            <span className="text-2xl">↓</span>
+            <ArrowDownIcon size={24} className="text-gray-600 dark:text-gray-300" />
           </div>
         </div>
 
@@ -172,13 +172,13 @@ export default function TransferPage() {
                   setToSection(s);
                   setToSubEntryId('');
                 }}
-                className={`p-2 rounded-lg border-2 transition-all text-center ${
+                className={`p-2 rounded-lg border-2 transition-all text-center flex flex-col items-center ${
                   toSection === s
                     ? 'border-green-500 bg-white dark:bg-gray-700'
                     : 'border-gray-200 dark:border-gray-600 hover:border-green-300'
                 }`}
               >
-                <span className="text-lg block">{SECTION_ICONS[s]}</span>
+                <SectionIcon section={s} size={22} className="mb-0.5" />
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   {SECTION_LABELS[s]}
                 </span>
