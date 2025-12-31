@@ -1,8 +1,11 @@
 'use client';
 
 import { useApp } from '@/context/AppContext';
-import { LoadingSpinner, SectionIcon, TrendingUpIcon, TrendingDownIcon, LendIcon } from '@/components';
+import { LoadingSpinner, SectionIcon, TrendingUpIcon, TrendingDownIcon, LendIcon, DownloadIcon, FileTextIcon, FileSpreadsheetIcon } from '@/components';
 import { SectionType, SECTION_LABELS } from '@/types';
+import { useState, useRef, useEffect } from 'react';
+import { jsPDF } from 'jspdf';
+import * as XLSX from 'xlsx';
 
 export default function ReportPage() {
   const {
@@ -14,6 +17,176 @@ export default function ReportPage() {
     getTotalEarned,
     getTotalSpent,
   } = useApp();
+
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setShowDownloadMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const generateReportData = () => {
+    const sections: SectionType[] = ['cash', 'bank', 'mobile', 'lend'];
+    const reportDate = new Date().toLocaleString();
+    const totalMoney = getTotalMoney();
+    const availableMoney = getAvailableMoney();
+    const totalEarned = getTotalEarned();
+    const totalSpent = getTotalSpent();
+    const netChange = totalEarned - totalSpent;
+
+    return { sections, reportDate, totalMoney, availableMoney, totalEarned, totalSpent, netChange };
+  };
+
+  const downloadAsPDF = () => {
+    const { sections, totalMoney, availableMoney, totalEarned, totalSpent, netChange } = generateReportData();
+    
+    const doc = new jsPDF();
+    let y = 20;
+    const lineHeight = 7;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MONETRA FINANCIAL REPORT', pageWidth / 2, y, { align: 'center' });
+    y += lineHeight * 2;
+    
+    // Summary Section
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SUMMARY', 20, y);
+    y += lineHeight;
+    doc.setDrawColor(200);
+    doc.line(20, y, pageWidth - 20, y);
+    y += lineHeight;
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const summaryData = [
+      ['Total Money', `BDT ${totalMoney.toLocaleString()}`],
+      ['Available Money', `BDT ${availableMoney.toLocaleString()}`],
+      ['Total Earned', `BDT ${totalEarned.toLocaleString()}`],
+      ['Total Spent', `BDT ${totalSpent.toLocaleString()}`],
+      ['Net Change', `${netChange >= 0 ? '+' : ''}BDT ${netChange.toLocaleString()}`],
+    ];
+    
+    summaryData.forEach(([label, value]) => {
+      doc.text(label + ':', 25, y);
+      doc.text(value, 100, y);
+      y += lineHeight;
+    });
+    y += lineHeight;
+    
+    // Section Breakdown
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SECTION-WISE BREAKDOWN', 20, y);
+    y += lineHeight;
+    doc.line(20, y, pageWidth - 20, y);
+    y += lineHeight;
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    sections.forEach(section => {
+      const sectionTotal = getSectionTotal(section);
+      const percentage = totalMoney > 0 ? ((sectionTotal / totalMoney) * 100).toFixed(1) : '0';
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${SECTION_LABELS[section]}: BDT ${sectionTotal.toLocaleString()} (${percentage}%)`, 25, y);
+      y += lineHeight;
+      doc.setFont('helvetica', 'normal');
+      state.sections[section].forEach(entry => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(`  - ${entry.name}: BDT ${entry.amount.toLocaleString()}`, 30, y);
+        y += lineHeight;
+      });
+      y += 3;
+    });
+    
+    doc.save(`monetra-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    setShowDownloadMenu(false);
+  };
+
+  const downloadAsExcel = () => {
+    const { sections, reportDate, totalMoney, availableMoney, totalEarned, totalSpent, netChange } = generateReportData();
+    
+    const workbook = XLSX.utils.book_new();
+    
+    // Summary Sheet
+    const summaryData = [
+      ['MONETRA FINANCIAL REPORT'],
+      [`Generated: ${reportDate}`],
+      [],
+      ['SUMMARY'],
+      ['Metric', 'Value'],
+      ['Total Money', totalMoney],
+      ['Available Money', availableMoney],
+      ['Total Earned', totalEarned],
+      ['Total Spent', totalSpent],
+      ['Net Change', netChange],
+    ];
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    summarySheet['!cols'] = [{ wch: 20 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+    
+    // Section Breakdown Sheet
+    const breakdownData = [
+      ['SECTION BREAKDOWN'],
+      ['Section', 'Entries', 'Total', 'Percentage'],
+      ...sections.map(section => {
+        const sectionTotal = getSectionTotal(section);
+        const percentage = totalMoney > 0 ? ((sectionTotal / totalMoney) * 100).toFixed(1) + '%' : '0%';
+        return [SECTION_LABELS[section], state.sections[section].length, sectionTotal, percentage];
+      }),
+    ];
+    const breakdownSheet = XLSX.utils.aoa_to_sheet(breakdownData);
+    breakdownSheet['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 15 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(workbook, breakdownSheet, 'Breakdown');
+    
+    // All Entries Sheet
+    const entriesData = [
+      ['ALL ENTRIES'],
+      ['Section', 'Name', 'Amount'],
+    ];
+    sections.forEach(section => {
+      state.sections[section].forEach(entry => {
+        entriesData.push([SECTION_LABELS[section], entry.name, entry.amount as unknown as string]);
+      });
+    });
+    const entriesSheet = XLSX.utils.aoa_to_sheet(entriesData);
+    entriesSheet['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(workbook, entriesSheet, 'Entries');
+    
+    // Transactions Sheet
+    const transactionsData = [
+      ['TRANSACTIONS'],
+      ['Date', 'Type', 'From Section', 'From Entry', 'To Section', 'To Entry', 'Amount', 'Purpose'],
+      ...state.transactions.map(t => [
+        new Date(t.date).toLocaleString(),
+        t.type,
+        SECTION_LABELS[t.fromSection],
+        t.fromSubEntry,
+        t.toSection ? SECTION_LABELS[t.toSection] : '-',
+        t.toSubEntry || '-',
+        t.amount,
+        t.purpose,
+      ]),
+    ];
+    const transactionsSheet = XLSX.utils.aoa_to_sheet(transactionsData);
+    transactionsSheet['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(workbook, transactionsSheet, 'Transactions');
+    
+    XLSX.writeFile(workbook, `monetra-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+    setShowDownloadMenu(false);
+  };
 
   if (isLoading) {
     return <LoadingSpinner size="lg" />;
@@ -29,13 +202,51 @@ export default function ReportPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Financial Report
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">
-          Summary of your finances
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Financial Report
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Summary of your finances
+          </p>
+        </div>
+        
+        {/* Download Report Button */}
+        <div className="relative" ref={downloadMenuRef}>
+          <button
+            onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            <DownloadIcon size={20} />
+            Download Report
+          </button>
+          
+          {showDownloadMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-10">
+              <button
+                onClick={downloadAsPDF}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <FileTextIcon size={20} className="text-red-500" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Download as PDF</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Text format report</p>
+                </div>
+              </button>
+              <button
+                onClick={downloadAsExcel}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700"
+              >
+                <FileSpreadsheetIcon size={20} className="text-green-500" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Download as Excel</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">CSV spreadsheet format</p>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}
