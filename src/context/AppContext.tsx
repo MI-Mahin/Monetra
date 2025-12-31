@@ -59,6 +59,9 @@ interface AppContextType {
   // Stats
   getTotalEarned: () => number;
   getTotalSpent: () => number;
+  
+  // Reset
+  resetAllData: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -286,6 +289,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .reduce((sum, t) => sum + t.amount, 0);
   };
 
+  // Reset all data
+  const resetAllData = () => {
+    setState(initialState);
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
   const value: AppContextType = {
     state,
     isLoading,
@@ -302,6 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     getFilteredTransactions,
     getTotalEarned,
     getTotalSpent,
+    resetAllData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
